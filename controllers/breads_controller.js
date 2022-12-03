@@ -26,15 +26,14 @@ breads.get('/:id', (req, res) => {
       .then(foundBread => {
         const bakedBy = foundBread.getBakedBy()
         console.log(bakedBy)
-        breadsByBaker = []
         const breadList = Bread.breadListByBaker(foundBread.baker)
         breadList.then(breads => {
-          breadsByBaker = breads
+          res.render('show', {
+            bread: foundBread,
+            breadsBaker: breads
+          })
         })
-        res.render('show', {
-          bread: foundBread,
-          breadsBaker: breadsByBaker
-        })
+        
       })
       .catch(err => {
         res.render('404')

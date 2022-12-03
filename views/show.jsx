@@ -1,7 +1,7 @@
 const React = require('react')
 const Default = require('./layouts/default')
 
-function Show ({bread}) {
+function Show ({bread, breadsBaker}) {
     // console.log(bread.name)
     return (
         <Default>
@@ -22,6 +22,19 @@ function Show ({bread}) {
             <form action={`/breads/${bread.id}?_method=DELETE`} method="POST">
             <input type='submit' value="DELETE"/>
             </form>
+            <h4>Breads Baked by {bread.baker} are</h4>
+            <ul>
+            {
+                breadsBaker.map((bread)=> {
+                    return (
+                        <li>
+                            {bread.name}
+                        </li>
+                    ) 
+                })
+            }
+
+            </ul>
 
         </Default>
     )
