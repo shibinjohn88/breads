@@ -1,7 +1,7 @@
 const express = require('express')
 const breads = express.Router()
 const Bread = require('../models/bread.js')
-
+const multipleBreads = require('../models/multipleBreads.js')
 //INDEX 
 breads.get('/', (req, res) => {
     Bread.find()
@@ -24,8 +24,16 @@ breads.get('/new', (req, res) => {
 breads.get('/:id', (req, res) => {
     Bread.findById(req.params.id)
       .then(foundBread => {
+        const bakedBy = foundBread.getBakedBy()
+        console.log(bakedBy)
+        breadsByBaker = []
+        const breadList = Bread.breadListByBaker(foundBread.baker)
+        breadList.then(breads => {
+          breadsByBaker = breads
+        })
         res.render('show', {
-          bread: foundBread
+          bread: foundBread,
+          breadsBaker: breadsByBaker
         })
       })
       .catch(err => {
@@ -45,34 +53,61 @@ breads.get('/:id', (req, res) => {
         req.body.hasGluten = 'false'
     }
     Bread.create(req.body)
-    res.redirect('/breads')
+      .then(breadCreated => {
+        res.redirect('/breads')
+        console.log(breadCreated)
+      })
+      .catch(err => {
+        res.status(404).render('404')
+        console.log(err)
+      })
   })
   
   //DELETE
-  breads.delete('/:indexArray', (req, res) => {
-    Bread.splice(req.params.indexArray, 1)
-    res.status(303).redirect('/breads')
-  })
+ 
+    breads.delete('/:id', (req, res) => {
+      Bread.findByIdAndDelete(req.params.id) 
+        .then((deletedBread) => { 
+          res.status(303).redirect('/breads')
+          console.log(deletedBread)
+        })
+    })
+
 
   //UPDATE
-  breads.put('/:arrayIndex', (req, res) => {
+  breads.put('/:id', (req, res) => {
     if(req.body.hasGluten === 'on') {
       req.body.hasGluten = true
     }else {
       req.body.hasGluten = false
     }
-    Bread[req.params.arrayIndex] = req.body
-    res.redirect(`/breads/${req.params.arrayIndex}`)
+    Bread.findByIdAndUpdate(req.params.id, req.body, {new: true})
+     .then(updateBread => {
+        console.log(updateBread)
+        res.redirect(`/breads/${req.params.id}`)
+     })
+    
   })
 
   //EDIT
-  breads.get('/:indexArray/edit', (req, res) => {
-    res.render('edit', {
-      bread: Bread[req.params.indexArray],
-      index: req.params.indexArray
-    })
+  breads.get('/:id/edit', (req, res) => {
+    Bread.findById(req.params.id) 
+      .then(foundBread => { 
+        res.render('edit', {
+          bread: foundBread 
+        })
+      })
   })
-
+  
+  //CREATE MUlTIPLE BREADS
+  breads.get('/data/seed', (req, res) => {
+    Bread.insertMany(multipleBreads)
+      .then(createdBreads => {
+        res.redirect('/breads')
+        console.log(createdBreads)
+      })
+  })
+  
 module.exports = breads
 
 
