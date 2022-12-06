@@ -1,6 +1,7 @@
  
 //require mongoose
 const mongoose = require('mongoose')
+const Baker = require('./baker')
 //creating shorthand for the Schema constructor 
 const { Schema } = mongoose
 
@@ -11,8 +12,8 @@ const breadSchema = new Schema ({
   hasGluten: Boolean,
   image: { type: String, default: 'http://placehold.it/500x500.png' },
   baker: {
-    type: String,
-    enum: ['Rachel', 'Monica', 'Joey', 'Chandler', 'Ross', 'Phoebe']
+    type: Schema.Types.ObjectId,
+    ref: 'Baker'  
   }
 })
 
